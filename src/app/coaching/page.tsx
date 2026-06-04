@@ -249,7 +249,7 @@ export default function CoachingPage() {
                 style={{ borderRadius: "20px" }}
               >
                 <Image
-                  src="/layo.jpeg"
+                  src="/Layo.jpeg"
                   alt="Coaching with Layo Obidike"
                   fill
                   className="object-cover"
