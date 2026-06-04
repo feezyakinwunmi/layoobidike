@@ -1,9 +1,9 @@
+// app/contact/page.tsx
 "use client";
 
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-
 
 const reasons = [
   {
@@ -57,16 +57,80 @@ export default function ContactPage() {
     message: "",
     reason: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const getReasonText = (reason: string) => {
+    switch(reason) {
+      case "coaching": return "Coaching Session";
+      case "speaking": return "Speaking Invitation";
+      case "collaboration": return "Collaboration / Partnership";
+      case "press": return "Press / Media";
+      case "general": return "General Inquiry";
+      default: return "Not specified";
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    // Here you'd integrate with your email service (Resend, SendGrid, etc.)
+    setIsSubmitting(true);
+
+    // Validate required fields
+    if (!form.name || !form.email || !form.message) {
+      alert("Please fill in all required fields (*)");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Create email body
+    const subject = encodeURIComponent(`Contact Form: ${form.subject || getReasonText(form.reason)} - ${form.name}`);
+    const body = encodeURIComponent(`
+========================================
+        NEW CONTACT FORM SUBMISSION
+========================================
+
+CONTACT INFORMATION:
+-------------------
+Name: ${form.name}
+Email: ${form.email}
+Phone: ${form.phone || "Not provided"}
+
+INQUIRY DETAILS:
+---------------
+Reason: ${getReasonText(form.reason)}
+Subject: ${form.subject || "Not provided"}
+
+MESSAGE:
+--------
+${form.message}
+
+========================================
+Submitted from LayoObidike.com Contact Page
+Date: ${new Date().toLocaleString()}
+========================================
+    `);
+
+    // Open email client
+    window.location.href = `mailto:layo@layoobidike.com?subject=${subject}&body=${body}`;
+
+    // Show confirmation and reset form
+    setTimeout(() => {
+      alert("Thank you for your message! Your email client has opened. Please click send to complete your message.");
+      setSubmitted(true);
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+        reason: "",
+      });
+      setIsSubmitting(false);
+    }, 500);
   };
 
   return (
@@ -252,6 +316,13 @@ export default function ContactPage() {
                   <p className="text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>
                     Thank you for reaching out. We&apos;ll respond within 48 business hours.
                   </p>
+                  <button
+                    onClick={() => setSubmitted(false)}
+                    className="mt-6 text-sm transition-colors"
+                    style={{ color: "#E5C158" }}
+                  >
+                    Send another message →
+                  </button>
                 </motion.div>
               ) : (
                 <form
@@ -365,12 +436,12 @@ export default function ContactPage() {
                           e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
                         }}
                       >
-                        <option value="" style={{ color: "#0A0A0A" }}>Select a reason...</option>
-                        <option value="coaching" style={{ color: "#0A0A0A" }}>Coaching Session</option>
-                        <option value="speaking" style={{ color: "#0A0A0A" }}>Speaking Invitation</option>
-                        <option value="collaboration" style={{ color: "#0A0A0A" }}>Collaboration / Partnership</option>
-                        <option value="press" style={{ color: "#0A0A0A" }}>Press / Media</option>
-                        <option value="general" style={{ color: "#0A0A0A" }}>General Inquiry</option>
+                        <option value="" style={{ backgroundColor: "#1a1a1a", color: "#aaa" }}>Select a reason...</option>
+                        <option value="coaching" style={{ backgroundColor: "#1a1a1a", color: "#fff" }}>Coaching Session</option>
+                        <option value="speaking" style={{ backgroundColor: "#1a1a1a", color: "#fff" }}>Speaking Invitation</option>
+                        <option value="collaboration" style={{ backgroundColor: "#1a1a1a", color: "#fff" }}>Collaboration / Partnership</option>
+                        <option value="press" style={{ backgroundColor: "#1a1a1a", color: "#fff" }}>Press / Media</option>
+                        <option value="general" style={{ backgroundColor: "#1a1a1a", color: "#fff" }}>General Inquiry</option>
                       </select>
                     </div>
                   </div>
@@ -430,19 +501,28 @@ export default function ContactPage() {
 
                   <button
                     type="submit"
-                    className="w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-300"
+                    disabled={isSubmitting}
+                    className="w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ backgroundColor: "#E5C158", color: "#0A0A0A" }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#F5D06B";
-                      e.currentTarget.style.boxShadow = "0 10px 25px rgba(229,193,88,0.25)";
+                      if (!isSubmitting) {
+                        e.currentTarget.style.backgroundColor = "#F5D06B";
+                        e.currentTarget.style.boxShadow = "0 10px 25px rgba(229,193,88,0.25)";
+                      }
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "#E5C158";
-                      e.currentTarget.style.boxShadow = "none";
+                      if (!isSubmitting) {
+                        e.currentTarget.style.backgroundColor = "#E5C158";
+                        e.currentTarget.style.boxShadow = "none";
+                      }
                     }}
                   >
-                    Send Message
+                    {isSubmitting ? "Opening Email Client..." : "Send Message"}
                   </button>
+
+                  <p className="text-xs text-center mt-4" style={{ color: "rgba(255,255,255,0.35)" }}>
+                    Your email client will open with your message. Please click send to complete.
+                  </p>
                 </form>
               )}
             </motion.div>
