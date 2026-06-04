@@ -417,7 +417,7 @@ export default function CoachingPage() {
             >
               <div className="relative w-full h-[350px] md:h-[420px] overflow-hidden" style={{ borderRadius: "20px" }}>
                 <Image
-                  src="/layo.jpeg"
+                  src="/Layo.jpeg"
                   alt="Layo Obidike"
                   fill
                   className="object-cover"

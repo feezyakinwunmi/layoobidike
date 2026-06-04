@@ -20,7 +20,7 @@ export default function Hero() {
   const y = useTransform(scrollYProgress, [0, 0.6], [0, 50]);
 
   // Placeholder image - replace with her actual image
-  const heroImage = "/layo.jpeg";
+  const heroImage = "/Layo.jpeg";
 
   const tags = [
     { label: "Visioneer", position: { top: "8%", right: "5%" }, delay: 0.8, floatSpeed: "slow" as const },
